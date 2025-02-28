@@ -26,20 +26,33 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const tileSize = 40;
-        const maze = [
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-            [1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ];
         let player = { x: 1, y: 1 };
         let victories = localStorage.getItem("victories") || 0;
+        let maze = generateMaze(10, 10);
+
+        function generateMaze(rows, cols) {
+            let grid = Array.from({ length: rows }, () => Array(cols).fill(1));
+            let stack = [{ x: 1, y: 1 }];
+            grid[1][1] = 0;
+            while (stack.length) {
+                let { x, y } = stack.pop();
+                let directions = [
+                    { x: 0, y: -2 }, { x: 0, y: 2 },
+                    { x: -2, y: 0 }, { x: 2, y: 0 }
+                ].sort(() => Math.random() - 0.5);
+                for (let { x: dx, y: dy } of directions) {
+                    let nx = x + dx, ny = y + dy;
+                    if (nx > 0 && nx < cols - 1 && ny > 0 && ny < rows - 1 && grid[ny][nx] === 1) {
+                        grid[y + dy / 2][x + dx / 2] = 0;
+                        grid[ny][nx] = 0;
+                        stack.push({ x: nx, y: ny });
+                    }
+                }
+            }
+            grid[rows - 2][cols - 2] = 0;
+            return grid;
+        }
+
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
@@ -51,6 +64,7 @@
             ctx.fillStyle = "red";
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
+
         function move(direction) {
             let newX = player.x;
             let newY = player.y;
@@ -70,8 +84,9 @@
                 drawMaze();
             }
         }
+
         function checkWin() {
-            if (player.x === 8 && player.y === 7) {
+            if (player.x === 8 && player.y === 8) {
                 victories++;
                 localStorage.setItem("victories", victories);
                 alert("Has superado la prueba, te invitamos a nuestro escape room.");
@@ -81,9 +96,11 @@
                 if (victories === 20) downloadVideo("reward20.mp4");
                 player.x = 1;
                 player.y = 1;
+                maze = generateMaze(10, 10);
                 drawMaze();
             }
         }
+
         function downloadVideo(videoName) {
             let link = document.createElement("a");
             link.href = videoName;
@@ -92,6 +109,7 @@
             link.click();
             document.body.removeChild(link);
         }
+
         drawMaze();
     </script>
 </body>
