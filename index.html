@@ -3,114 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laberinto Difícil</title>
+    <title>Laberinto Extremo</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
-        canvas { background: #eee; display: block; margin: auto; }
+        canvas { border: 2px solid black; display: block; margin: auto; }
         .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
         button { padding: 10px; font-size: 20px; }
     </style>
 </head>
 <body>
-    <h1>Laberinto</h1>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <h1>¡Laberinto Extremo!</h1>
+    <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
+    <canvas id="mazeCanvas" width="600" height="600"></canvas>
     <div class="controls">
-        <button onclick="move('up')">⬆️</button>
+        <button onclick="move(0, -1)">⬆️</button>
     </div>
     <div class="controls">
-        <button onclick="move('left')">⬅️</button>
-        <button onclick="move('down')">⬇️</button>
-        <button onclick="move('right')">➡️</button>
+        <button onclick="move(-1, 0)">⬅️</button>
+        <button onclick="move(1, 0)">➡️</button>
+    </div>
+    <div class="controls">
+        <button onclick="move(0, 1)">⬇️</button>
     </div>
     <script>
-        const canvas = document.getElementById("gameCanvas");
+        const canvas = document.getElementById("mazeCanvas");
         const ctx = canvas.getContext("2d");
-        const tileSize = 40;
-        let player = { x: 1, y: 1 };
-        let victories = localStorage.getItem("victories") || 0;
-        let maze = generateMaze(10, 10);
-
-        function generateMaze(rows, cols) {
-            let grid = Array.from({ length: rows }, () => Array(cols).fill(1));
+        
+        function generateMaze(size) {
+            let maze = Array.from({ length: size }, () => Array(size).fill(1));
             let stack = [{ x: 1, y: 1 }];
-            grid[1][1] = 0;
+            maze[1][1] = 0;
             while (stack.length) {
                 let { x, y } = stack.pop();
                 let directions = [
-                    { x: 0, y: -2 }, { x: 0, y: 2 },
-                    { x: -2, y: 0 }, { x: 2, y: 0 }
+                    { dx: 0, dy: -2 },
+                    { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 },
+                    { dx: 2, dy: 0 }
                 ].sort(() => Math.random() - 0.5);
-                for (let { x: dx, y: dy } of directions) {
+                directions.forEach(({ dx, dy }) => {
                     let nx = x + dx, ny = y + dy;
-                    if (nx > 0 && nx < cols - 1 && ny > 0 && ny < rows - 1 && grid[ny][nx] === 1) {
-                        grid[y + dy / 2][x + dx / 2] = 0;
-                        grid[ny][nx] = 0;
+                    if (maze[ny] && maze[ny][nx] === 1) {
+                        maze[y + dy / 2][x + dx / 2] = 0;
+                        maze[ny][nx] = 0;
                         stack.push({ x: nx, y: ny });
                     }
-                }
+                });
             }
-            grid[rows - 2][cols - 2] = 0;
-            return grid;
+            return maze;
         }
-
+        
+        const mazeSize = 21;
+        let completionCount = 0;
+        let maze = generateMaze(mazeSize);
+        const tileSize = 30;
+        let player = { x: 1, y: 1 };
+        let goal = { x: mazeSize - 2, y: mazeSize - 2 };
+        
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
                 for (let x = 0; x < maze[y].length; x++) {
-                    ctx.fillStyle = maze[y][x] === 1 ? "black" : "white";
-                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = "black";
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    }
                 }
             }
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "green";
+            ctx.fillRect(goal.x * tileSize, goal.y * tileSize, tileSize, tileSize);
+            ctx.fillStyle = "blue";
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
-
-        function move(direction) {
-            let newX = player.x;
-            let newY = player.y;
-            if (direction === "up") newY--;
-            if (direction === "down") newY++;
-            if (direction === "left") newX--;
-            if (direction === "right") newX++;
-            if (maze[newY] && maze[newY][newX] === 0) {
+        
+        function move(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            if (maze[newY][newX] === 0) {
                 player.x = newX;
                 player.y = newY;
                 drawMaze();
-                checkWin();
+                if (player.x === goal.x && player.y === goal.y) {
+                    completionCount++;
+                    checkRewards();
+                    setTimeout(() => {
+                        alert("Has superado la prueba, te invitamos a nuestro escape room.");
+                        maze = generateMaze(mazeSize);
+                        player.x = 1;
+                        player.y = 1;
+                        drawMaze();
+                    }, 100);
+                }
             } else {
                 player.x = 1;
                 player.y = 1;
-                alert("¡Has chocado! Vuelves al inicio.");
                 drawMaze();
             }
         }
-
-        function checkWin() {
-            if (player.x === 8 && player.y === 8) {
-                victories++;
-                localStorage.setItem("victories", victories);
-                alert("Has superado la prueba, te invitamos a nuestro escape room.");
-                if (victories === 1) downloadVideo("reward1.mp4");
-                if (victories === 5) downloadVideo("reward5.mp4");
-                if (victories === 10) downloadVideo("reward10.mp4");
-                if (victories === 20) downloadVideo("reward20.mp4");
-                player.x = 1;
-                player.y = 1;
-                maze = generateMaze(10, 10);
-                drawMaze();
+        
+        function checkRewards() {
+            let rewardUrl = "";
+            if (completionCount === 1) rewardUrl = "reward1.mp4";
+            else if (completionCount === 5) rewardUrl = "reward5.mp4";
+            else if (completionCount === 10) rewardUrl = "reward10.mp4";
+            else if (completionCount === 20) rewardUrl = "reward20.mp4";
+            
+            if (rewardUrl) {
+                const link = document.createElement("a");
+                link.href = rewardUrl;
+                link.download = rewardUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
-
-        function downloadVideo(videoName) {
-            let link = document.createElement("a");
-            link.href = videoName;
-            link.download = videoName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
+        
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp") move(0, -1);
+            if (event.key === "ArrowDown") move(0, 1);
+            if (event.key === "ArrowLeft") move(-1, 0);
+            if (event.key === "ArrowRight") move(1, 0);
+        });
+        
+        let touchStartX = 0, touchStartY = 0;
+        document.addEventListener("touchstart", (event) => {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        });
+        
+        document.addEventListener("touchend", (event) => {
+            let deltaX = event.changedTouches[0].clientX - touchStartX;
+            let deltaY = event.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0) move(1, 0);
+                else move(-1, 0);
+            } else {
+                if (deltaY > 0) move(0, 1);
+                else move(0, -1);
+            }
+        });
+        
         drawMaze();
     </script>
 </body>
 </html>
+
