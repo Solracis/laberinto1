@@ -49,10 +49,12 @@
 
     <!-- Controles más grandes y corregidos -->
 <div class="controls">
-    <button onclick="move(0, -1)" ontouchstart="move(0, -1); event.preventDefault();">⬆️</button>
-        <button onclick="move(-1, 0)" ontouchstart="move(-1, 0); event.preventDefault();">⬅️</button>
-        <button onclick="move(1, 0)" ontouchstart="move(1, 0); event.preventDefault();">➡️</button>
-    <button onclick="move(0, 1)" ontouchstart="move(0, 1); event.preventDefault();">⬇️</button>
+    <button id="btnUp">⬆️</button>
+    <div class="row">
+        <button id="btnLeft">⬅️</button>
+        <button id="btnRight">➡️</button>
+    </div>
+    <button id="btnDown">⬇️</button>
 </div>
 
     <script>
@@ -66,10 +68,10 @@
             while (stack.length) {
                 let { x, y } = stack.pop();
                 let directions = [
-                    { dx: 0, dy: -2 },
-                    { dx: 0, dy: 2 },
-                    { dx: -2, dy: 0 },
-                    { dx: 2, dy: 0 }
+                    { dx: 0, dy: -1 },
+                    { dx: 0, dy: 1 },
+                    { dx: -1, dy: 0 },
+                    { dx: 1, dy: 0 }
                 ].sort(() => Math.random() - 0.5);
                 directions.forEach(({ dx, dy }) => {
                     let nx = x + dx, ny = y + dy;
