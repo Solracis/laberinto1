@@ -43,6 +43,9 @@ button {
     </div>
     <button onclick="move(0, 1)" ontouchstart="move(0, 1)">⬇️</button>
 </div>
+    button {
+    touch-action: manipulation; /* Evita zoom y retrasos en móviles */
+}
     <script>
         const canvas = document.getElementById("mazeCanvas");
         const ctx = canvas.getContext("2d");
@@ -105,22 +108,31 @@ function move(dx, dy) {
     const newY = player.y + dy;
 
     if (maze[newY][newX] === 0) {
+        // Movimiento válido
         player.x = newX;
         player.y = newY;
         drawMaze();
+
+        // Verifica si llegaste a la meta
         if (player.x === goal.x && player.y === goal.y) {
             completionCount++;
             checkRewards();
             setTimeout(() => {
-                alert("¡Has superado el laberinto! Prueba otro desafío.");
+                alert("¡Has superado el laberinto! Intenta otro nivel.");
                 maze = generateMaze(mazeSize);
                 player.x = 1;
                 player.y = 1;
                 drawMaze();
             }, 100);
         }
+    } else {
+        // Si toca una pared, reinicia
+        player.x = 1;
+        player.y = 1;
+        drawMaze();
     }
 }
+
         
         function checkRewards() {
             let rewardUrl = "";
