@@ -7,27 +7,38 @@
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
         canvas { border: 2px solid black; display: block; margin: auto; }
+
+        /* Controles más grandes y bien alineados */
         .controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-.row {
-    display: flex;
-    gap: 10px;
-}
+        .row {
+            display: flex;
+            gap: 10px;
+        }
 
-button {
-    padding: 15px;
-    font-size: 24px;
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    touch-action: manipulation; /* Mejora la respuesta en móviles */
-}
+        button {
+            padding: 20px;
+            font-size: 32px;
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            touch-action: manipulation; /* Evita zoom y retrasos en móviles */
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #0056b3;
+        }
 
     </style>
 </head>
@@ -35,21 +46,21 @@ button {
     <h1>¡Laberinto Extremo!</h1>
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
     <canvas id="mazeCanvas" width="600" height="600"></canvas>
-<div class="controls">
-    <button onclick="move(0, -1)" ontouchstart="move(0, -1)">⬆️</button>
-    <div class="row">
-        <button onclick="move(-1, 0)" ontouchstart="move(-1, 0)">⬅️</button>
-        <button onclick="move(1, 0)" ontouchstart="move(1, 0)">➡️</button>
+
+    <!-- Controles más grandes y corregidos -->
+    <div class="controls">
+        <button onclick="move(0, -1)">⬆️</button>
+        <div class="row">
+            <button onclick="move(-1, 0)">⬅️</button>
+            <button onclick="move(1, 0)">➡️</button>
+        </div>
+        <button onclick="move(0, 1)">⬇️</button>
     </div>
-    <button onclick="move(0, 1)" ontouchstart="move(0, 1)">⬇️</button>
-</div>
-    <button {
-    touch-action: manipulation; /* Evita zoom y retrasos en móviles */
-}>
+
     <script>
         const canvas = document.getElementById("mazeCanvas");
         const ctx = canvas.getContext("2d");
-        
+
         function generateMaze(size) {
             let maze = Array.from({ length: size }, () => Array(size).fill(1));
             let stack = [{ x: 1, y: 1 }];
@@ -73,14 +84,14 @@ button {
             }
             return maze;
         }
-        
+
         const mazeSize = 21;
         let completionCount = 0;
         let maze = generateMaze(mazeSize);
         const tileSize = 30;
         let player = { x: 1, y: 1 };
         let goal = { x: mazeSize - 2, y: mazeSize - 2 };
-        
+
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
@@ -96,51 +107,48 @@ button {
             ctx.fillStyle = "blue";
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
-        
-let lastMoveTime = 0;
 
-function move(dx, dy) {
-    const now = Date.now();
-    if (now - lastMoveTime < 100) return; // Evita múltiples movimientos seguidos
-    lastMoveTime = now;
+        let lastMoveTime = 0;
 
-    const newX = player.x + dx;
-    const newY = player.y + dy;
+        function move(dx, dy) {
+            const now = Date.now();
+            if (now - lastMoveTime < 150) return; // Evita movimientos dobles
+            lastMoveTime = now;
 
-    if (maze[newY][newX] === 0) {
-        // Movimiento válido
-        player.x = newX;
-        player.y = newY;
-        drawMaze();
+            const newX = player.x + dx;
+            const newY = player.y + dy;
 
-        // Verifica si llegaste a la meta
-        if (player.x === goal.x && player.y === goal.y) {
-            completionCount++;
-            checkRewards();
-            setTimeout(() => {
-                alert("¡Has superado el laberinto! Intenta otro nivel.");
-                maze = generateMaze(mazeSize);
+            if (maze[newY][newX] === 0) {
+                player.x = newX;
+                player.y = newY;
+                drawMaze();
+
+                if (player.x === goal.x && player.y === goal.y) {
+                    completionCount++;
+                    checkRewards();
+                    setTimeout(() => {
+                        alert("¡Has superado el laberinto! Intenta otro nivel.");
+                        maze = generateMaze(mazeSize);
+                        player.x = 1;
+                        player.y = 1;
+                        drawMaze();
+                    }, 100);
+                }
+            } else {
+                // Si toca una pared, reinicia
                 player.x = 1;
                 player.y = 1;
                 drawMaze();
-            }, 100);
+            }
         }
-    } else {
-        // Si toca una pared, reinicia
-        player.x = 1;
-        player.y = 1;
-        drawMaze();
-    }
-}
 
-        
         function checkRewards() {
             let rewardUrl = "";
             if (completionCount === 1) rewardUrl = "reward1.mp4";
             else if (completionCount === 5) rewardUrl = "reward5.mp4";
             else if (completionCount === 10) rewardUrl = "reward10.mp4";
             else if (completionCount === 20) rewardUrl = "reward20.mp4";
-            
+
             if (rewardUrl) {
                 const link = document.createElement("a");
                 link.href = rewardUrl;
@@ -150,20 +158,20 @@ function move(dx, dy) {
                 document.body.removeChild(link);
             }
         }
-        
+
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowUp") move(0, -1);
             if (event.key === "ArrowDown") move(0, 1);
             if (event.key === "ArrowLeft") move(-1, 0);
             if (event.key === "ArrowRight") move(1, 0);
         });
-        
+
         let touchStartX = 0, touchStartY = 0;
         document.addEventListener("touchstart", (event) => {
             touchStartX = event.touches[0].clientX;
             touchStartY = event.touches[0].clientY;
         });
-        
+
         document.addEventListener("touchend", (event) => {
             let deltaX = event.changedTouches[0].clientX - touchStartX;
             let deltaY = event.changedTouches[0].clientY - touchStartY;
@@ -175,7 +183,7 @@ function move(dx, dy) {
                 else move(0, -1);
             }
         });
-        
+
         drawMaze();
     </script>
 </body>
