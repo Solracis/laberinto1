@@ -39,7 +39,6 @@
         button:active {
             background-color: #0056b3;
         }
-
     </style>
 </head>
 <body>
@@ -47,15 +46,15 @@
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
     <canvas id="mazeCanvas" width="600" height="600"></canvas>
 
-    <!-- Controles más grandes y corregidos -->
-<div class="controls">
-    <button id="btnUp">⬆️</button>
-    <div class="row">
-        <button id="btnLeft">⬅️</button>
-        <button id="btnRight">➡️</button>
+    <!-- Controles corregidos -->
+    <div class="controls">
+        <button id="btnUp">⬆️</button>
+        <div class="row">
+            <button id="btnLeft">⬅️</button>
+            <button id="btnRight">➡️</button>
+        </div>
+        <button id="btnDown">⬇️</button>
     </div>
-    <button id="btnDown">⬇️</button>
-</div>
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
@@ -68,10 +67,10 @@
             while (stack.length) {
                 let { x, y } = stack.pop();
                 let directions = [
-                    { dx: 0, dy: -1 },
-                    { dx: 0, dy: 1 },
-                    { dx: -1, dy: 0 },
-                    { dx: 1, dy: 0 }
+                    { dx: 0, dy: -2 },
+                    { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 },
+                    { dx: 2, dy: 0 }
                 ].sort(() => Math.random() - 0.5);
                 directions.forEach(({ dx, dy }) => {
                     let nx = x + dx, ny = y + dy;
@@ -108,41 +107,34 @@
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
 
-        let lastMoveTime = 0;
+        function move(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
 
-function move(dx, dy) {
-    const now = Date.now();
-    if (now - lastMoveTime < 100) return; // Evita movimientos dobles
-    lastMoveTime = now;
-
-    const newX = player.x + dx;
-    const newY = player.y + dy;
-
-    if (maze[newY] && maze[newY][newX] === 0) { 
-        player.x = newX;
-        player.y = newY;
-        drawMaze();
-
-        if (player.x === goal.x && player.y === goal.y) {
-            completionCount++;
-            checkRewards();
-            setTimeout(() => {
-                alert("¡Has superado el laberinto! Intenta otro nivel.");
-                maze = generateMaze(mazeSize);
-                player.x = 1;
-                player.y = 1;
+            if (maze[newY] && maze[newY][newX] === 0) { 
+                player.x = newX;
+                player.y = newY;
                 drawMaze();
-            }, 100);
+
+                if (player.x === goal.x && player.y === goal.y) {
+                    completionCount++;
+                    checkRewards();
+                    setTimeout(() => {
+                        alert("¡Has superado el laberinto! Intenta otro nivel.");
+                        maze = generateMaze(mazeSize);
+                        player.x = 1;
+                        player.y = 1;
+                        drawMaze();
+                    }, 100);
+                }
+            } else {
+                setTimeout(() => {
+                    player.x = 1;
+                    player.y = 1;
+                    drawMaze();
+                }, 100);
+            }
         }
-    } else {
-        // Reinicio si toca una pared
-        setTimeout(() => {
-            player.x = 1;
-            player.y = 1;
-            drawMaze();
-        }, 100);
-    }
-}
 
         function checkRewards() {
             let rewardUrl = "";
@@ -186,8 +178,14 @@ function move(dx, dy) {
             }
         });
 
+        document.getElementById("btnUp").addEventListener("touchstart", (e) => { move(0, -1); e.preventDefault(); });
+        document.getElementById("btnDown").addEventListener("touchstart", (e) => { move(0, 1); e.preventDefault(); });
+        document.getElementById("btnLeft").addEventListener("touchstart", (e) => { move(-1, 0); e.preventDefault(); });
+        document.getElementById("btnRight").addEventListener("touchstart", (e) => { move(1, 0); e.preventDefault(); });
+
         drawMaze();
     </script>
 </body>
 </html>
+
 
