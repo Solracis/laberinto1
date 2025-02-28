@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laberinto Móvil</title>
+    <title>Laberinto Difícil</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
         canvas { background: #eee; display: block; margin: auto; }
@@ -28,20 +28,20 @@
         const tileSize = 40;
         const maze = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
-            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
             [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
             [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ];
         let player = { x: 1, y: 1 };
         let victories = localStorage.getItem("victories") || 0;
-
         function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
                 for (let x = 0; x < maze[y].length; x++) {
                     ctx.fillStyle = maze[y][x] === 1 ? "black" : "white";
@@ -51,7 +51,6 @@
             ctx.fillStyle = "red";
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
-
         function move(direction) {
             let newX = player.x;
             let newY = player.y;
@@ -59,8 +58,7 @@
             if (direction === "down") newY++;
             if (direction === "left") newX--;
             if (direction === "right") newX++;
-            
-            if (maze[newY][newX] === 0) {
+            if (maze[newY] && maze[newY][newX] === 0) {
                 player.x = newX;
                 player.y = newY;
                 drawMaze();
@@ -72,9 +70,8 @@
                 drawMaze();
             }
         }
-        
         function checkWin() {
-            if (player.x === 8 && player.y === 8) {
+            if (player.x === 8 && player.y === 7) {
                 victories++;
                 localStorage.setItem("victories", victories);
                 alert("Has superado la prueba, te invitamos a nuestro escape room.");
@@ -87,7 +84,6 @@
                 drawMaze();
             }
         }
-        
         function downloadVideo(videoName) {
             let link = document.createElement("a");
             link.href = videoName;
@@ -96,7 +92,6 @@
             link.click();
             document.body.removeChild(link);
         }
-        
         drawMaze();
     </script>
 </body>
