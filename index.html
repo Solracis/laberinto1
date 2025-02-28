@@ -8,6 +8,7 @@
         body { text-align: center; font-family: Arial, sans-serif; }
         canvas { border: 2px solid black; display: block; margin: auto; }
 
+        /* Controles más grandes y bien alineados */
         .controls {
             display: flex;
             flex-direction: column;
@@ -27,7 +28,7 @@
             width: 100px;
             height: 100px;
             border-radius: 20px;
-            touch-action: manipulation;
+            touch-action: manipulation; /* Evita zoom y retrasos en móviles */
             border: none;
             background-color: #007BFF;
             color: white;
@@ -38,6 +39,7 @@
         button:active {
             background-color: #0056b3;
         }
+
     </style>
 </head>
 <body>
@@ -45,15 +47,15 @@
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
     <canvas id="mazeCanvas" width="600" height="600"></canvas>
 
-    <!-- Controles corregidos -->
-    <div class="controls">
-        <button id="btnUp">⬆️</button>
-        <div class="row">
-            <button id="btnLeft">⬅️</button>
-            <button id="btnRight">➡️</button>
-        </div>
-        <button id="btnDown">⬇️</button>
+    <!-- Controles más grandes y corregidos -->
+<div class="controls">
+    <button onclick="move(0, -1)" ontouchstart="move(0, -1); event.preventDefault();">⬆️</button>
+    <div class="row">
+        <button onclick="move(-1, 0)" ontouchstart="move(-1, 0); event.preventDefault();">⬅️</button>
+        <button onclick="move(1, 0)" ontouchstart="move(1, 0); event.preventDefault();">➡️</button>
     </div>
+    <button onclick="move(0, 1)" ontouchstart="move(0, 1); event.preventDefault();">⬇️</button>
+</div>
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
@@ -84,6 +86,7 @@
         }
 
         const mazeSize = 21;
+        let completionCount = 0;
         let maze = generateMaze(mazeSize);
         const tileSize = 30;
         let player = { x: 1, y: 1 };
@@ -105,28 +108,59 @@
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
 
-        function move(dx, dy) {
-            const newX = player.x + dx;
-            const newY = player.y + dy;
+        let lastMoveTime = 0;
 
-            if (maze[newY] && maze[newY][newX] === 0) {
-                player.x = newX;
-                player.y = newY;
+function move(dx, dy) {
+    const now = Date.now();
+    if (now - lastMoveTime < 100) return; // Evita movimientos dobles
+    lastMoveTime = now;
+
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+
+    if (maze[newY] && maze[newY][newX] === 0) { 
+        player.x = newX;
+        player.y = newY;
+        drawMaze();
+
+        if (player.x === goal.x && player.y === goal.y) {
+            completionCount++;
+            checkRewards();
+            setTimeout(() => {
+                alert("¡Has superado el laberinto! Intenta otro nivel.");
+                maze = generateMaze(mazeSize);
+                player.x = 1;
+                player.y = 1;
                 drawMaze();
+            }, 100);
+        }
+    } else {
+        // Reinicio si toca una pared
+        setTimeout(() => {
+            player.x = 1;
+            player.y = 1;
+            drawMaze();
+        }, 100);
+    }
+}
 
-                if (player.x === goal.x && player.y === goal.y) {
-                    setTimeout(() => {
-                        alert("¡Has superado el laberinto! Intenta otro nivel.");
-                        maze = generateMaze(mazeSize);
-                        player.x = 1;
-                        player.y = 1;
-                        drawMaze();
-                    }, 100);
-                }
+        function checkRewards() {
+            let rewardUrl = "";
+            if (completionCount === 1) rewardUrl = "reward1.mp4";
+            else if (completionCount === 5) rewardUrl = "reward5.mp4";
+            else if (completionCount === 10) rewardUrl = "reward10.mp4";
+            else if (completionCount === 20) rewardUrl = "reward20.mp4";
+
+            if (rewardUrl) {
+                const link = document.createElement("a");
+                link.href = rewardUrl;
+                link.download = rewardUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
 
-        // Eventos para teclado
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowUp") move(0, -1);
             if (event.key === "ArrowDown") move(0, 1);
@@ -134,13 +168,6 @@
             if (event.key === "ArrowRight") move(1, 0);
         });
 
-        // Eventos para los botones (móviles y PC)
-        document.getElementById("btnUp").addEventListener("click", () => move(0, -1));
-        document.getElementById("btnDown").addEventListener("click", () => move(0, 1));
-        document.getElementById("btnLeft").addEventListener("click", () => move(-1, 0));
-        document.getElementById("btnRight").addEventListener("click", () => move(1, 0));
-
-        // Soporte para gestos táctiles
         let touchStartX = 0, touchStartY = 0;
         document.addEventListener("touchstart", (event) => {
             touchStartX = event.touches[0].clientX;
@@ -163,5 +190,4 @@
     </script>
 </body>
 </html>
-
 
