@@ -43,9 +43,9 @@ button {
     </div>
     <button onclick="move(0, 1)" ontouchstart="move(0, 1)">⬇️</button>
 </div>
-    button {
+    <button {
     touch-action: manipulation; /* Evita zoom y retrasos en móviles */
-}
+}>
     <script>
         const canvas = document.getElementById("mazeCanvas");
         const ctx = canvas.getContext("2d");
