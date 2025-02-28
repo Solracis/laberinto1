@@ -36,12 +36,12 @@ button {
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
     <canvas id="mazeCanvas" width="600" height="600"></canvas>
 <div class="controls">
-    <button onclick="move(0, -1)">⬆️</button>
+    <button onclick="move(0, -1)" ontouchstart="move(0, -1)">⬆️</button>
     <div class="row">
-        <button onclick="move(-1, 0)">⬅️</button>
-        <button onclick="move(1, 0)">➡️</button>
+        <button onclick="move(-1, 0)" ontouchstart="move(-1, 0)">⬅️</button>
+        <button onclick="move(1, 0)" ontouchstart="move(1, 0)">➡️</button>
     </div>
-    <button onclick="move(0, 1)">⬇️</button>
+    <button onclick="move(0, 1)" ontouchstart="move(0, 1)">⬇️</button>
 </div>
     <script>
         const canvas = document.getElementById("mazeCanvas");
@@ -94,30 +94,33 @@ button {
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
         
-        function move(dx, dy) {
-            const newX = player.x + dx;
-            const newY = player.y + dy;
-            if (maze[newY][newX] === 0) {
-                player.x = newX;
-                player.y = newY;
-                drawMaze();
-                if (player.x === goal.x && player.y === goal.y) {
-                    completionCount++;
-                    checkRewards();
-                    setTimeout(() => {
-                        alert("Has superado la prueba, te invitamos a nuestro escape room.");
-                        maze = generateMaze(mazeSize);
-                        player.x = 1;
-                        player.y = 1;
-                        drawMaze();
-                    }, 100);
-                }
-            } else {
+let lastMoveTime = 0;
+
+function move(dx, dy) {
+    const now = Date.now();
+    if (now - lastMoveTime < 100) return; // Evita múltiples movimientos seguidos
+    lastMoveTime = now;
+
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+
+    if (maze[newY][newX] === 0) {
+        player.x = newX;
+        player.y = newY;
+        drawMaze();
+        if (player.x === goal.x && player.y === goal.y) {
+            completionCount++;
+            checkRewards();
+            setTimeout(() => {
+                alert("¡Has superado el laberinto! Prueba otro desafío.");
+                maze = generateMaze(mazeSize);
                 player.x = 1;
                 player.y = 1;
                 drawMaze();
-            }
+            }, 100);
         }
+    }
+}
         
         function checkRewards() {
             let rewardUrl = "";
