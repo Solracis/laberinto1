@@ -91,6 +91,8 @@
         let player = { x: 1, y: 1 };
         let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
+        let lastMoveTime = 0; // Variable para controlar el tiempo entre movimientos
+
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
@@ -108,14 +110,19 @@
         }
 
         function move(dx, dy) {
+            const now = Date.now();
+            if (now - lastMoveTime < 200) return; // Evitar movimientos repetidos en menos de 200ms
+            lastMoveTime = now;
+
             const newX = player.x + dx;
             const newY = player.y + dy;
 
-            if (maze[newY] && maze[newY][newX] === 0) { 
+            if (maze[newY] && maze[newY][newX] === 0) { // Si el movimiento es válido
                 player.x = newX;
                 player.y = newY;
                 drawMaze();
 
+                // Si llega al objetivo
                 if (player.x === goal.x && player.y === goal.y) {
                     completionCount++;
                     checkRewards();
@@ -153,6 +160,7 @@
             }
         }
 
+        // Control de teclas
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowUp") move(0, -1);
             if (event.key === "ArrowDown") move(0, 1);
@@ -160,6 +168,7 @@
             if (event.key === "ArrowRight") move(1, 0);
         });
 
+        // Control táctil
         let touchStartX = 0, touchStartY = 0;
         document.addEventListener("touchstart", (event) => {
             touchStartX = event.touches[0].clientX;
@@ -170,14 +179,15 @@
             let deltaX = event.changedTouches[0].clientX - touchStartX;
             let deltaY = event.changedTouches[0].clientY - touchStartY;
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                if (deltaX > 0) move(1, 0);
-                else move(-1, 0);
+                if (deltaX > 0) move(1, 0); // Movimiento a la derecha
+                else move(-1, 0); // Movimiento a la izquierda
             } else {
-                if (deltaY > 0) move(0, 1);
-                else move(0, -1);
+                if (deltaY > 0) move(0, 1); // Movimiento hacia abajo
+                else move(0, -1); // Movimiento hacia arriba
             }
         });
 
+        // Controles táctiles de los botones
         document.getElementById("btnUp").addEventListener("touchstart", (e) => { move(0, -1); e.preventDefault(); });
         document.getElementById("btnDown").addEventListener("touchstart", (e) => { move(0, 1); e.preventDefault(); });
         document.getElementById("btnLeft").addEventListener("touchstart", (e) => { move(-1, 0); e.preventDefault(); });
