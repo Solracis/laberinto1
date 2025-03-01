@@ -41,6 +41,25 @@
         }
     </style>
 </head>
+<body>
+    <h1>¡Laberinto Extremo!</h1>
+    <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
+    <canvas id="mazeCanvas" width="600" height="600"></canvas>
+
+    <!-- Controles corregidos -->
+    <div class="controls">
+        <button id="btnUp">⬆️</button>
+        <div class="row">
+            <button id="btnLeft">⬅️</button>
+            <button id="btnRight">➡️</button>
+        </div>
+        <button id="btnDown">⬇️</button>
+        <!-- Botón de Instagram mejorado -->
+<div class="social-button">
+    <a href="https://www.instagram.com/mrs.detective_scape_room?igsh=MW56NGYzcnhpMmNqbg%3D%3D&utm_source=qr" target="_blank">
+        <button id="btnInstagram">📸 Síguenos en Instagram</button>
+    </a>
+</div>
 .social-button {
     margin-top: 20px;
 }
@@ -63,27 +82,8 @@
     background: linear-gradient(45deg, #fa7e1e, #d62976, #962fbf);
 }
 
-<body>
-    <h1>¡Laberinto Extremo!</h1>
-    <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
-    <canvas id="mazeCanvas" width="600" height="600"></canvas>
-
-    <!-- Controles corregidos -->
-    <div class="controls">
-        <button id="btnUp">⬆️</button>
-        <div class="row">
-            <button id="btnLeft">⬅️</button>
-            <button id="btnRight">➡️</button>
-        </div>
-        <button id="btnDown">⬇️</button>
-        <!-- Botón de Instagram mejorado -->
-<div class="social-button">
-    <a href="https://www.instagram.com/mrs.detective_scape_room?igsh=MW56NGYzcnhpMmNqbg%3D%3D&utm_source=qr" target="_blank">
-        <button id="btnInstagram">📸 Síguenos en Instagram</button>
-    </a>
-</div>
-
     </div>
+    
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
