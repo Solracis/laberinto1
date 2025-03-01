@@ -41,6 +41,26 @@
         }
     </style>
 </head>
+    .social-button {
+    margin-top: 20px;
+}
+
+#btnInstagram {
+    padding: 15px;
+    font-size: 24px;
+    width: 220px;
+    border-radius: 20px;
+    background-color: #E1306C;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+#btnInstagram:active {
+    background-color: #C13584;
+}
+
 <body>
     <h1>¡Laberinto Extremo!</h1>
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
@@ -54,6 +74,12 @@
             <button id="btnRight">➡️</button>
         </div>
         <button id="btnDown">⬇️</button>
+        <!-- Botón de Instagram -->
+<div class="social-button">
+    <a href="https://www.instagram.com/tu_usuario" target="_blank">
+        <button id="btnInstagram">📸 Instagram</button>
+    </a>
+</div>
     </div>
 
     <script>
