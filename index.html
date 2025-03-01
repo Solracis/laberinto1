@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laberinto Extremo</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        canvas { border: 2px solid black; display: block; margin: auto; }
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
 
-        /* Controles más grandes y bien alineados */
+        /* 📌 Canvas responsive */
+        canvas {
+            border: 2px solid black;
+            display: block;
+            margin: auto;
+            max-width: 90vw;
+            height: auto;
+        }
+
+        /* 📌 Controles centrados */
         .controls {
             display: flex;
             flex-direction: column;
@@ -22,13 +33,14 @@
             gap: 10px;
         }
 
+        /* 📌 Botones responsive */
         button {
-            padding: 20px;
-            font-size: 32px;
-            width: 100px;
-            height: 100px;
-            border-radius: 20px;
-            touch-action: manipulation; /* Evita zoom y retrasos en móviles */
+            padding: 15px;
+            font-size: 24px;
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            touch-action: manipulation;
             border: none;
             background-color: #007BFF;
             color: white;
@@ -39,27 +51,49 @@
         button:active {
             background-color: #0056b3;
         }
+
+        /* 📌 Estilos del botón de Instagram */
         .social-button {
-    margin-top: 20px;
-}
+            margin-top: 20px;
+        }
 
-#btnInstagram {
-    padding: 20px;
-    font-size: 28px;
-    width: 280px;
-    border-radius: 50px;
-    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    transition: transform 0.1s ease-in-out;
-}
+        #btnInstagram {
+            padding: 15px;
+            font-size: 20px;
+            width: 250px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s ease-in-out;
+        }
 
-#btnInstagram:active {
-    transform: scale(0.95);
-    background: linear-gradient(45deg, #fa7e1e, #d62976, #962fbf);
-}
+        #btnInstagram:active {
+            transform: scale(0.95);
+            background: linear-gradient(45deg, #fa7e1e, #d62976, #962fbf);
+        }
+
+        /* 📌 Media Queries para móviles */
+        @media (max-width: 600px) {
+            button {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+                padding: 10px;
+            }
+
+            #btnInstagram {
+                width: 200px;
+                font-size: 18px;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -67,7 +101,7 @@
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
     <canvas id="mazeCanvas" width="600" height="600"></canvas>
 
-    <!-- Controles corregidos -->
+    <!-- Controles -->
     <div class="controls">
         <button id="btnUp">⬆️</button>
         <div class="row">
@@ -75,19 +109,26 @@
             <button id="btnRight">➡️</button>
         </div>
         <button id="btnDown">⬇️</button>
-        <!-- Botón de Instagram mejorado -->
-<div class="social-button">
-    <a href="https://www.instagram.com/mrs.detective_scape_room?igsh=MW56NGYzcnhpMmNqbg%3D%3D&utm_source=qr" target="_blank">
-        <button id="btnInstagram">📸 Síguenos en Instagram</button>
-    </a>
-</div>
 
+        <!-- Botón de Instagram -->
+        <div class="social-button">
+            <a href="https://www.instagram.com/mrs.detective_scape_room?igsh=MW56NGYzcnhpMmNqbg%3D%3D&utm_source=qr" target="_blank">
+                <button id="btnInstagram">📸 Síguenos en Instagram</button>
+            </a>
+        </div>
     </div>
-    
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
         const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            canvas.width = Math.min(window.innerWidth * 0.9, 600);
+            canvas.height = canvas.width;
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
 
         function generateMaze(size) {
             let maze = Array.from({ length: size }, () => Array(size).fill(1));
@@ -120,8 +161,6 @@
         let player = { x: 1, y: 1 };
         let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
-        let lastMoveTime = 0; // Variable para controlar el tiempo entre movimientos
-
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < maze.length; y++) {
@@ -139,22 +178,15 @@
         }
 
         function move(dx, dy) {
-            const now = Date.now();
-            if (now - lastMoveTime < 200) return; // Evitar movimientos repetidos en menos de 200ms
-            lastMoveTime = now;
-
             const newX = player.x + dx;
             const newY = player.y + dy;
 
-            if (maze[newY] && maze[newY][newX] === 0) { // Si el movimiento es válido
+            if (maze[newY] && maze[newY][newX] === 0) {
                 player.x = newX;
                 player.y = newY;
                 drawMaze();
-
-                // Si llega al objetivo
                 if (player.x === goal.x && player.y === goal.y) {
                     completionCount++;
-                    checkRewards();
                     setTimeout(() => {
                         alert("¡Has superado el laberinto! Intenta otro nivel.");
                         maze = generateMaze(mazeSize);
@@ -163,33 +195,9 @@
                         drawMaze();
                     }, 100);
                 }
-            } else {
-                setTimeout(() => {
-                    player.x = 1;
-                    player.y = 1;
-                    drawMaze();
-                }, 100);
             }
         }
 
-        function checkRewards() {
-            let rewardUrl = "";
-            if (completionCount === 1) rewardUrl = "reward1.mp4";
-            else if (completionCount === 5) rewardUrl = "reward5.mp4";
-            else if (completionCount === 10) rewardUrl = "reward10.mp4";
-            else if (completionCount === 20) rewardUrl = "reward20.mp4";
-
-            if (rewardUrl) {
-                const link = document.createElement("a");
-                link.href = rewardUrl;
-                link.download = rewardUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        // Control de teclas
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowUp") move(0, -1);
             if (event.key === "ArrowDown") move(0, 1);
@@ -197,34 +205,13 @@
             if (event.key === "ArrowRight") move(1, 0);
         });
 
-        // Control táctil
-        let touchStartX = 0, touchStartY = 0;
-        document.addEventListener("touchstart", (event) => {
-            touchStartX = event.touches[0].clientX;
-            touchStartY = event.touches[0].clientY;
-        });
-
-        document.addEventListener("touchend", (event) => {
-            let deltaX = event.changedTouches[0].clientX - touchStartX;
-            let deltaY = event.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                if (deltaX > 0) move(1, 0); // Movimiento a la derecha
-                else move(-1, 0); // Movimiento a la izquierda
-            } else {
-                if (deltaY > 0) move(0, 1); // Movimiento hacia abajo
-                else move(0, -1); // Movimiento hacia arriba
-            }
-        });
-
-        // Controles táctiles de los botones
-        document.getElementById("btnUp").addEventListener("touchstart", (e) => { move(0, -1); e.preventDefault(); });
-        document.getElementById("btnDown").addEventListener("touchstart", (e) => { move(0, 1); e.preventDefault(); });
-        document.getElementById("btnLeft").addEventListener("touchstart", (e) => { move(-1, 0); e.preventDefault(); });
-        document.getElementById("btnRight").addEventListener("touchstart", (e) => { move(1, 0); e.preventDefault(); });
+        document.getElementById("btnUp").addEventListener("click", () => move(0, -1));
+        document.getElementById("btnDown").addEventListener("click", () => move(0, 1));
+        document.getElementById("btnLeft").addEventListener("click", () => move(-1, 0));
+        document.getElementById("btnRight").addEventListener("click", () => move(1, 0));
 
         drawMaze();
     </script>
 </body>
 </html>
-
 
