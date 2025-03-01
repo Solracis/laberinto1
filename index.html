@@ -19,7 +19,7 @@
             height: auto;
         }
 
-        /* 📌 Controles centrados */
+        /* 📌 Controles */
         .controls {
             display: flex;
             flex-direction: column;
@@ -33,7 +33,7 @@
             gap: 10px;
         }
 
-        /* 📌 Botones responsive */
+        /* 📌 Botones táctiles */
         button {
             padding: 15px;
             font-size: 24px;
@@ -112,7 +112,7 @@
 
         <!-- Botón de Instagram -->
         <div class="social-button">
-            <a href="https://www.instagram.com/mrs.detective_scape_room?igsh=MW56NGYzcnhpMmNqbg%3D%3D&utm_source=qr" target="_blank">
+            <a href="https://www.instagram.com/mrs.detective_scape_room" target="_blank">
                 <button id="btnInstagram">📸 Síguenos en Instagram</button>
             </a>
         </div>
@@ -187,6 +187,7 @@
                 drawMaze();
                 if (player.x === goal.x && player.y === goal.y) {
                     completionCount++;
+                    checkRewards();
                     setTimeout(() => {
                         alert("¡Has superado el laberinto! Intenta otro nivel.");
                         maze = generateMaze(mazeSize);
@@ -195,15 +196,31 @@
                         drawMaze();
                     }, 100);
                 }
+            } else {
+                setTimeout(() => {
+                    player.x = 1;
+                    player.y = 1;
+                    drawMaze();
+                }, 100);
             }
         }
 
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowUp") move(0, -1);
-            if (event.key === "ArrowDown") move(0, 1);
-            if (event.key === "ArrowLeft") move(-1, 0);
-            if (event.key === "ArrowRight") move(1, 0);
-        });
+        function checkRewards() {
+            let rewardUrl = "";
+            if (completionCount === 1) rewardUrl = "reward1.mp4";
+            else if (completionCount === 5) rewardUrl = "reward5.mp4";
+            else if (completionCount === 10) rewardUrl = "reward10.mp4";
+            else if (completionCount === 20) rewardUrl = "reward20.mp4";
+
+            if (rewardUrl) {
+                const link = document.createElement("a");
+                link.href = rewardUrl;
+                link.download = rewardUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
 
         document.getElementById("btnUp").addEventListener("click", () => move(0, -1));
         document.getElementById("btnDown").addEventListener("click", () => move(0, 1));
@@ -214,4 +231,3 @@
     </script>
 </body>
 </html>
-
