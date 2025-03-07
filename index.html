@@ -6,6 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laberinto Extremo</title>
     <style>
+        @media (max-width:768px){
+  .main .center .searh{
+    width: 500px;
+  }
+}
+
+@media (max-width:583px){
+  .main .center span{
+    left: 44%;
+    top:-52px;
+  }
+}
+
+@media (max-width: 580px) {
+  .main .center .search {
+    width: 100%;
+  }
+  .main .center .links{
+    display: none;
+  }
+  .main .top .fa {
+    cursor: pointer;
+    visibility: visible;
+  }
+}
         body { text-align: center; font-family: Arial, sans-serif; }
         canvas { border: 2px solid black; display: block; margin: auto; }
 
