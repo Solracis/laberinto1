@@ -114,19 +114,23 @@
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        const mazeSize = 21;
        function adjustCanvasSize() {
     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.width = size;
     canvas.height = size;
     tileSize = canvas.width / mazeSize; // Tamaño correcto de los tiles
+   console.log("Canvas Size:", canvas.width, canvas.height);
+    console.log("Tile Size:", tileSize);
     drawMaze();
 }
 
 // Llamamos a la función al inicio y cuando cambia el tamaño de la pantalla
 window.addEventListener("resize", adjustCanvasSize);
-adjustCanvasSize();
+adjustCanvasSize();// Llamar después de definir `mazeSize`
 
-        const ctx = canvas.getContext("2d");
 
         function generateMaze(size) {
             let maze = Array.from({ length: size }, () => Array(size).fill(1));
@@ -152,10 +156,10 @@ adjustCanvasSize();
             return maze;
         }
 
-        const mazeSize = 21;
         let completionCount = 0;
         let maze = generateMaze(mazeSize);
 let tileSize = canvas.width / mazeSize;
+        console.log("Generated Maze:", maze);
         let player = { x: 1, y: 1 };
         let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
@@ -176,6 +180,7 @@ let tileSize = canvas.width / mazeSize;
             ctx.fillStyle = "blue";
             ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
+        drawMaze();
 
         function move(dx, dy) {
             const now = Date.now();
