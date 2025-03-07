@@ -114,11 +114,11 @@
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
-        function adjustCanvasSize() {
-    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9; // 90% del tamaño disponible
+       function adjustCanvasSize() {
+    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.width = size;
     canvas.height = size;
-    tileSize = size / mazeSize;
+    tileSize = canvas.width / mazeSize; // Tamaño correcto de los tiles
     drawMaze();
 }
 
