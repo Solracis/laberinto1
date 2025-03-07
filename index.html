@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Responsive</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,9 +31,34 @@
     cursor: pointer;
     visibility: visible;
   }
+    @media (max-width: 768px) {
+    .controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    button {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
+    }
+}
 }
         body { text-align: center; font-family: Arial, sans-serif; }
         canvas { border: 2px solid black; display: block; margin: auto; }
+const canvas = document.getElementById("mazeCanvas");
+const ctx = canvas.getContext("2d");
+
+function adjustCanvasSize() {
+    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9; // 90% del tamaño disponible
+    canvas.width = size;
+    canvas.height = size;
+    tileSize = size / mazeSize;
+    drawMaze();
+}
+
+window.addEventListener("resize", adjustCanvasSize);
+adjustCanvasSize();
 
         /* Controles más grandes y bien alineados */
         .controls {
