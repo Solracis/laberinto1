@@ -91,7 +91,13 @@
 <body>
     <h1>¡Laberinto Extremo!</h1>
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
-    <canvas id="mazeCanvas" width="600" height="600"></canvas>
+<canvas id="mazeCanvas"></canvas>
+<canvas {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    height: auto;
+}>
 
     <!-- Controles corregidos -->
     <div class="controls">
@@ -113,6 +119,18 @@
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
+        function adjustCanvasSize() {
+    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9; // 90% del tamaño disponible
+    canvas.width = size;
+    canvas.height = size;
+    tileSize = size / mazeSize;
+    drawMaze();
+}
+
+// Llamamos a la función al inicio y cuando cambia el tamaño de la pantalla
+window.addEventListener("resize", adjustCanvasSize);
+adjustCanvasSize();
+
         const ctx = canvas.getContext("2d");
 
         function generateMaze(size) {
