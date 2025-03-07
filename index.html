@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laberinto Extremo</title>
     <style>
-        @media (max-width:400px){
+        @media (max-width:768px){
   .main .center .searh{
-    width: 200px;
+    width: 500px;
   }
 }
 
@@ -91,8 +91,7 @@
 <body>
     <h1>¡Laberinto Extremo!</h1>
     <p>Usa las teclas de dirección o los botones táctiles para moverte. ¡Cuidado con los muros!</p>
-<canvas id="mazeCanvas"></canvas>
-
+    <canvas id="mazeCanvas" width="600" height="600"></canvas>
 
     <!-- Controles corregidos -->
     <div class="controls">
@@ -113,89 +112,57 @@
     
 
     <script>
+        const canvas = document.getElementById("mazeCanvas");
+        const ctx = canvas.getContext("2d");
 
-let lastMoveTime = 0; // ✅ Declarar la variable antes de usarla
-
-const canvas = document.getElementById("mazeCanvas");
-const ctx = canvas.getContext("2d");
-
-const mazeSize = 21; // Asegurar que se define antes
-let tileSize;
-let maze; // 🔹 Declara la variable primero
-        
-const player = { x: 1, y: 1 };
-const goal = { x: mazeSize - 2, y: mazeSize - 2 }; // 🔹 Definir antes de llamar a drawMaze
-
-function adjustCanvasSize() {
-    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-    canvas.width = size;
-    canvas.height = size;
-    tileSize = canvas.width / mazeSize; // Tamaño correcto de los tiles
-    console.log("Canvas Size:", canvas.width, canvas.height);
-    console.log("Tile Size:", tileSize);
-    drawMaze();
-}
-maze = generateMaze(mazeSize); // 🔹 Genera el laberinto antes de usarlo
-adjustCanvasSize(); // 🔹 Ahora lo puedes llamar sin errores
-        
-window.addEventListener("resize", adjustCanvasSize);
-adjustCanvasSize(); // Llamar después de definir `mazeSize`
-
-function generateMaze(size) {
-    let maze = Array.from({ length: size }, () => Array(size).fill(1));
-    let stack = [{ x: 1, y: 1 }];
-    maze[1][1] = 0;
-
-    while (stack.length) {
-        let { x, y } = stack.pop();
-        let directions = [
-            { dx: 0, dy: -2 }, { dx: 0, dy: 2 },
-            { dx: -2, dy: 0 }, { dx: 2, dy: 0 }
-        ].sort(() => Math.random() - 0.5);
-
-        directions.forEach(({ dx, dy }) => {
-            let nx = x + dx, ny = y + dy;
-            if (maze[ny] && maze[ny][nx] === 1) {
-                maze[y + dy / 2][x + dx / 2] = 0;
-                maze[ny][nx] = 0;
-                stack.push({ x: nx, y: ny });
+        function generateMaze(size) {
+            let maze = Array.from({ length: size }, () => Array(size).fill(1));
+            let stack = [{ x: 1, y: 1 }];
+            maze[1][1] = 0;
+            while (stack.length) {
+                let { x, y } = stack.pop();
+                let directions = [
+                    { dx: 0, dy: -2 },
+                    { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 },
+                    { dx: 2, dy: 0 }
+                ].sort(() => Math.random() - 0.5);
+                directions.forEach(({ dx, dy }) => {
+                    let nx = x + dx, ny = y + dy;
+                    if (maze[ny] && maze[ny][nx] === 1) {
+                        maze[y + dy / 2][x + dx / 2] = 0;
+                        maze[ny][nx] = 0;
+                        stack.push({ x: nx, y: ny });
+                    }
+                });
             }
-        });
-    }
-    return maze;
-}
-
-console.log("Generated Maze:", maze);
-
-
-function drawMaze() {
-     if (!maze) return; // 🔹 Evita el error si maze no está listo
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let y = 0; y < maze.length; y++) {
-        for (let x = 0; x < maze[y].length; x++) {
-            if (maze[y][x] === 1) {
-                ctx.fillStyle = "black"; // Paredes
-            } else {
-                ctx.fillStyle = "white"; // Caminos
-            }
-            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+            return maze;
         }
-    }
 
-    // Dibujar la meta en verde
-    ctx.fillStyle = "green";
-    ctx.fillRect(goal.x * tileSize, goal.y * tileSize, tileSize, tileSize);
+        const mazeSize = 21;
+        let completionCount = 0;
+        let maze = generateMaze(mazeSize);
+        const tileSize = 30;
+        let player = { x: 1, y: 1 };
+        let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
-    // Dibujar al jugador en azul
-    ctx.fillStyle = "blue";
-    ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
-}
+        let lastMoveTime = 0; // Variable para controlar el tiempo entre movimientos
 
-
-drawMaze();
-
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = "black";
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    }
+                }
+            }
+            ctx.fillStyle = "green";
+            ctx.fillRect(goal.x * tileSize, goal.y * tileSize, tileSize, tileSize);
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+        }
 
         function move(dx, dy) {
             const now = Date.now();
