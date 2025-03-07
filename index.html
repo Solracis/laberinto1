@@ -113,6 +113,8 @@
     
 
     <script>
+        let lastMoveTime = 0; // ✅ Declarar la variable antes de usarla
+
         const canvas = document.getElementById("mazeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -122,6 +124,7 @@ let maze; // 🔹 Declara la variable primero
         
 const player = { x: 1, y: 1 };
 const goal = { x: mazeSize - 2, y: mazeSize - 2 }; // 🔹 Definir antes de llamar a drawMaze
+let lastMoveTime = 0; // ✅ Declarar la variable antes de usarla
 
 function adjustCanvasSize() {
     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
