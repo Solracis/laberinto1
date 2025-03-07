@@ -118,9 +118,8 @@ const ctx = canvas.getContext("2d");
 
 const mazeSize = 21; // Asegurar que se define antes
 let tileSize;
-
+let maze; // 🔹 Declara la variable primero
 function adjustCanvasSize() {
-    console.log("Tile size:", tileSize);
     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.width = size;
     canvas.height = size;
@@ -129,7 +128,9 @@ function adjustCanvasSize() {
     console.log("Tile Size:", tileSize);
     drawMaze();
 }
-
+maze = generateMaze(mazeSize); // 🔹 Genera el laberinto antes de usarlo
+adjustCanvasSize(); // 🔹 Ahora lo puedes llamar sin errores
+        
 window.addEventListener("resize", adjustCanvasSize);
 adjustCanvasSize(); // Llamar después de definir `mazeSize`
 
@@ -164,6 +165,8 @@ let player = { x: 1, y: 1 };
 let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
 function drawMaze() {
+     if (!maze) return; // 🔹 Evita el error si maze no está listo
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let y = 0; y < maze.length; y++) {
