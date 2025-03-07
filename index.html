@@ -114,73 +114,75 @@
 
     <script>
         const canvas = document.getElementById("mazeCanvas");
-        const ctx = canvas.getContext("2d");
-        
-        const mazeSize = 21;
-       function adjustCanvasSize() {
+const ctx = canvas.getContext("2d");
+
+const mazeSize = 21; // Asegurar que se define antes
+let tileSize;
+
+function adjustCanvasSize() {
     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.width = size;
     canvas.height = size;
     tileSize = canvas.width / mazeSize; // Tamaño correcto de los tiles
-   console.log("Canvas Size:", canvas.width, canvas.height);
+    console.log("Canvas Size:", canvas.width, canvas.height);
     console.log("Tile Size:", tileSize);
     drawMaze();
 }
 
-// Llamamos a la función al inicio y cuando cambia el tamaño de la pantalla
 window.addEventListener("resize", adjustCanvasSize);
-adjustCanvasSize();// Llamar después de definir `mazeSize`
+adjustCanvasSize(); // Llamar después de definir `mazeSize`
 
+function generateMaze(size) {
+    let maze = Array.from({ length: size }, () => Array(size).fill(1));
+    let stack = [{ x: 1, y: 1 }];
+    maze[1][1] = 0;
 
-        function generateMaze(size) {
-            let maze = Array.from({ length: size }, () => Array(size).fill(1));
-            let stack = [{ x: 1, y: 1 }];
-            maze[1][1] = 0;
-            while (stack.length) {
-                let { x, y } = stack.pop();
-                let directions = [
-                    { dx: 0, dy: -2 },
-                    { dx: 0, dy: 2 },
-                    { dx: -2, dy: 0 },
-                    { dx: 2, dy: 0 }
-                ].sort(() => Math.random() - 0.5);
-                directions.forEach(({ dx, dy }) => {
-                    let nx = x + dx, ny = y + dy;
-                    if (maze[ny] && maze[ny][nx] === 1) {
-                        maze[y + dy / 2][x + dx / 2] = 0;
-                        maze[ny][nx] = 0;
-                        stack.push({ x: nx, y: ny });
-                    }
-                });
+    while (stack.length) {
+        let { x, y } = stack.pop();
+        let directions = [
+            { dx: 0, dy: -2 }, { dx: 0, dy: 2 },
+            { dx: -2, dy: 0 }, { dx: 2, dy: 0 }
+        ].sort(() => Math.random() - 0.5);
+
+        directions.forEach(({ dx, dy }) => {
+            let nx = x + dx, ny = y + dy;
+            if (maze[ny] && maze[ny][nx] === 1) {
+                maze[y + dy / 2][x + dx / 2] = 0;
+                maze[ny][nx] = 0;
+                stack.push({ x: nx, y: ny });
             }
-            return maze;
-        }
+        });
+    }
+    return maze;
+}
 
-        let completionCount = 0;
-        let maze = generateMaze(mazeSize);
-let tileSize = canvas.width / mazeSize;
-        console.log("Generated Maze:", maze);
-        let player = { x: 1, y: 1 };
-        let goal = { x: mazeSize - 2, y: mazeSize - 2 };
+let maze = generateMaze(mazeSize);
+console.log("Generated Maze:", maze);
 
-        let lastMoveTime = 0; // Variable para controlar el tiempo entre movimientos
+let player = { x: 1, y: 1 };
+let goal = { x: mazeSize - 2, y: mazeSize - 2 };
 
-        function drawMaze() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let y = 0; y < maze.length; y++) {
-                for (let x = 0; x < maze[y].length; x++) {
-                    if (maze[y][x] === 1) {
-                        ctx.fillStyle = "black";
-                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                    }
-                }
+function drawMaze() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+            if (maze[y][x] === 1) {
+                ctx.fillStyle = "black";
+                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
             }
-            ctx.fillStyle = "green";
-            ctx.fillRect(goal.x * tileSize, goal.y * tileSize, tileSize, tileSize);
-            ctx.fillStyle = "blue";
-            ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
         }
-        drawMaze();
+    }
+    
+    ctx.fillStyle = "green";
+    ctx.fillRect(goal.x * tileSize, goal.y * tileSize, tileSize, tileSize);
+    
+    ctx.fillStyle = "blue";
+    ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+}
+
+drawMaze();
+
 
         function move(dx, dy) {
             const now = Date.now();
